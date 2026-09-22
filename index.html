@@ -134,18 +134,18 @@
     /* ---------- Floating pill navigation ---------- */
     .pill {
       position: fixed; top: max(0.9rem, env(safe-area-inset-top)); left: 50%; z-index: 60;
-      width: min(calc(100% - 2rem), 22rem);
+      width: min(calc(100% - 3rem), 15rem);
       translate: -50% 0;
       background: var(--ink); color: var(--on-dark);
-      border-radius: 1.6rem;
+      border-radius: 1.2rem;
       box-shadow: 0 1rem 2rem -1rem rgba(17, 17, 17, 0.5);
     }
-    .pill-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.6rem 0.6rem 1.25rem; }
-    .pill-brand { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.03em; }
+    .pill-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.4rem 0.4rem 0.4rem 0.9rem; }
+    .pill-brand { font-family: var(--font-display); font-weight: 800; font-size: 1rem; letter-spacing: -0.03em; }
     .pill-brand:hover { text-decoration: none; }
     .pill-btn {
-      width: 2.6rem; height: 2.6rem; border: 0; cursor: pointer;
-      border-radius: 0.8rem; background: var(--paper); color: var(--ink);
+      width: 2rem; height: 2rem; border: 0; cursor: pointer;
+      border-radius: 0.6rem; background: var(--paper); color: var(--ink);
       display: grid; place-items: center;
     }
     .pill-btn .dots { display: flex; gap: 0.22rem; }
@@ -448,7 +448,7 @@
 
         <div class="about-right">
           <p>I build backend, full-stack, and AI-powered products, from APIs and data systems to applications that make AI genuinely useful.</p>
-          <p>What sets me apart? I care about what happens under the hood: not just making something work, but making it reliable, thoughtful, and worth using. I’m always building, breaking, learning, and building again.</p>
+          <p>What sets me apart? I care about what happens under the hood - not just making something work, but making it reliable, thoughtful, and worth using. I’m always building, breaking, learning, and building again.</p>
           <a class="text-link" href="#contact">Get in touch
             <span class="arrow" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9.5 9.5 2.5M4 2.5h5.5V8"/></svg></span>
           </a>
@@ -473,7 +473,7 @@
         <div class="do-grid">
           <article class="do-card">
             <h3>Backend &amp; APIs</h3>
-            <p>Clean API architecture with authentication, authorization, and data handling that stays reliable as it grows.</p>
+            <p>Clean API architecture with authentication, authorization, and structured data handling built for reliable application behavior.</p>
             <ul class="tags" aria-label="Backend skills">
               <li class="tag">REST APIs</li>
               <li class="tag">JWT authentication</li>
@@ -497,7 +497,7 @@
           </article>
           <article class="do-card">
             <h3>Applied AI</h3>
-            <p>LLM features built for a specific job and tested for accuracy, from semantic search and structured outputs to fact-checking generated text.</p>
+            <p>LLM features built for a specific job and tested for accuracy, from semantic search and structured outputs to verifying generated claims against source evidence.</p>
             <ul class="tags" aria-label="Applied AI skills">
               <li class="tag">Gemini API</li>
               <li class="tag">Hugging Face LLaMA</li>
@@ -511,7 +511,7 @@
           </article>
           <article class="do-card">
             <h3>Data, reliability &amp; deployment</h3>
-            <p>Data models and tests that make behavior predictable, including the edge cases nobody asks about.</p>
+            <p>Data models, validation, and integration tests that make backend behavior reliable, including the edge cases nobody asks about.</p>
             <ul class="tags" aria-label="Data and reliability skills">
               <li class="tag">Prisma</li>
               <li class="tag">SQLite</li>
