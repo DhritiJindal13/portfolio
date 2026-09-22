@@ -847,6 +847,7 @@
       });
 
       // ---- Scroll-linked portrait: small and tilted in the hero, flat and in colour in the About section
+           // ---- Scroll-linked portrait: small and tilted in the hero, flat and in colour in the About section
       var photo = document.getElementById('photo');
       var slot = document.getElementById('photo-slot');
       var heroAnchor = document.getElementById('hero-anchor');
@@ -855,31 +856,42 @@
       if (document.documentElement.classList.contains('morph') && photo && slot && heroAnchor) {
         var inner = photo.querySelector('.photo-inner');
         var img = photo.querySelector('img');
-        var a, b, end, ticking = false;
+        var gray = photo.querySelector('.photo-gray');
+        var a, b, end, ticking = false, measureScheduled = false;
+        var lastWidth = window.innerWidth;
+        var lastY = -1, lastT = -1;
 
         document.body.appendChild(photo);
         photo.classList.add('is-floating');
 
-        var gray = photo.querySelector('.photo-gray');
-        var last = -1;
+        // One-time GPU-layer hints (no visual change, just compositing perf)
+        photo.style.willChange = 'transform';
+        inner.style.willChange = 'transform';
+        gray.style.willChange = 'opacity';
+        for (var s = 0; s < shapes.length; s++) { shapes[s].style.willChange = 'transform'; }
+
         var render = function () {
           ticking = false;
           if (!a) return;
           var y = Math.max(window.pageYOffset, 0);
+          if (y === lastY) return;
+          lastY = y;
           var t = Math.min(y / end, 1);
-          if (Math.abs(t - last) < 0.002) return;
-          last = t;
+          if (Math.abs(t - lastT) < 0.004) return;
+          lastT = t;
           var e = t * t * (3 - 2 * t);
           var x = a.x + (b.x - a.x) * t;
           var yy = a.y + (b.y - a.y) * t;
-          var s = a.w / b.w + (1 - a.w / b.w) * e;
-          photo.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + yy.toFixed(1) + 'px,0) scale(' + s.toFixed(4) + ')';
-          inner.style.transform = 'rotate(' + (4 * (1 - e)).toFixed(2) + 'deg)';
+          var sc = a.w / b.w + (1 - a.w / b.w) * e;
+          // translate3d/scale keep this on the GPU compositor
+          photo.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + yy.toFixed(1) + 'px,0) scale(' + sc.toFixed(4) + ')';
+          inner.style.transform = 'translateZ(0) rotate(' + (4 * (1 - e)).toFixed(2) + 'deg)';
           gray.style.opacity = (1 - e).toFixed(3);
           for (var i = 0; i < shapes.length; i++) {
-            shapes[i].style.transform = 'rotate(' + ((i ? -1 : 1) * y * 0.06).toFixed(2) + 'deg)';
+            shapes[i].style.transform = 'translateZ(0) rotate(' + ((i ? -1 : 1) * y * 0.06).toFixed(2) + 'deg)';
           }
         };
+
         var measure = function () {
           var sx = window.pageXOffset, sy = window.pageYOffset;
           var A = heroAnchor.getBoundingClientRect();
@@ -889,15 +901,41 @@
           photo.style.width = b.w + 'px';
           photo.style.height = b.h + 'px';
           end = Math.max(b.y + b.h / 2 - window.innerHeight / 2, 1);
+          lastY = -1; lastT = -1;
           render();
         };
+
         var request = function () { if (!ticking) { ticking = true; window.requestAnimationFrame(render); } };
 
+        var scheduleMeasure = function () {
+          if (measureScheduled) return;
+          measureScheduled = true;
+          window.requestAnimationFrame(function () {
+            measureScheduled = false;
+            measure();
+          });
+        };
+
+        // Only remeasure on an actual width change (orientation/device rotation).
+        // Mobile browsers also fire 'resize' when the address bar hides/shows during
+        // scroll, which only changes viewport height — remeasuring on that causes
+        // layout-forcing getBoundingClientRect() calls mid-scroll and is the main
+        // source of mobile jank, so we ignore height-only resize events.
+        var handleResize = function () {
+          var w = window.innerWidth;
+          if (w === lastWidth) return;
+          lastWidth = w;
+          scheduleMeasure();
+        };
+
         window.addEventListener('scroll', request, { passive: true });
-        window.addEventListener('resize', measure);
-        window.addEventListener('load', measure);
-        if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
-        if (window.ResizeObserver) new ResizeObserver(measure).observe(document.body);
+        window.addEventListener('resize', handleResize, { passive: true });
+        window.addEventListener('orientationchange', scheduleMeasure, { passive: true });
+        window.addEventListener('load', scheduleMeasure);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleMeasure);
+        // Observe the slot (not document.body) so we only remeasure on layout
+        // changes that actually affect the photo, not on viewport/body noise.
+        if (window.ResizeObserver) new ResizeObserver(scheduleMeasure).observe(slot);
         measure();
       }
 
